@@ -1,4 +1,4 @@
-# Coding in TEAMS - SSG
+# Coding in TEAMS - Simple Go SSG
 
 A minimal, lightning-fast Static Site Generator written in Go, designed with simplicity and clean architecture principles in mind. Built to align with the **TEAMS** philosophy:
 
