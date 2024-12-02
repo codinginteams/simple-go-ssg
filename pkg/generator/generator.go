@@ -8,6 +8,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/codinginteams/simple-go-ssg/internal/content"
 )
 
 // Run generates a static site using content, templates, and an output directory.
@@ -56,29 +58,54 @@ func getMarkdownFiles(contentDir string) ([]string, error) {
 }
 
 func processMarkdownFile(file, outputDir string, tmpl *template.Template) error {
-	content, err := ioutil.ReadFile(file)
+	contentHTML, err := readAndConvertMarkdown(file)
 	if err != nil {
 		return err
 	}
 
-	filename := strings.TrimSuffix(filepath.Base(file), filepath.Ext(file))
-	outputFile := filepath.Join(outputDir, filename+".html")
+	outputFile := generateOutputFilePath(file, outputDir)
 
-	data := map[string]string{
-		"Title":   strings.Title(filename),
-		"Content": string(content),
+	data := prepareTemplateData(file, contentHTML)
+
+	if err := renderTemplateToFile(outputFile, tmpl, data); err != nil {
+		return err
 	}
 
+	logGeneration(outputFile)
+	return nil
+}
+
+func readAndConvertMarkdown(file string) (string, error) {
+	contentBytes, err := ioutil.ReadFile(file)
+	if err != nil {
+		return "", err
+	}
+	return content.MarkdownToHtml(string(contentBytes)), nil
+}
+
+func generateOutputFilePath(file, outputDir string) string {
+	filename := strings.TrimSuffix(filepath.Base(file), filepath.Ext(file))
+	return filepath.Join(outputDir, filename+".html")
+}
+
+func prepareTemplateData(file, contentHTML string) map[string]string {
+	filename := strings.TrimSuffix(filepath.Base(file), filepath.Ext(file))
+	return map[string]string{
+		"Title":   strings.Title(filename),
+		"Content": contentHTML,
+	}
+}
+
+func renderTemplateToFile(outputFile string, tmpl *template.Template, data map[string]string) error {
 	output, err := os.Create(outputFile)
 	if err != nil {
 		return err
 	}
 	defer output.Close()
 
-	if err := tmpl.Execute(output, data); err != nil {
-		return err
-	}
+	return tmpl.Execute(output, data)
+}
 
+func logGeneration(outputFile string) {
 	log.Printf("Generated %s\n", outputFile)
-	return nil
 }
