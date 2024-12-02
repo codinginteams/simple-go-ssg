@@ -1,0 +1,26 @@
+#!/bin/bash
+
+echo "Running pre-commit checks..."
+
+fmt_output=$(go fmt ./...)
+if [ -n "$fmt_output" ]; then
+    echo "Formatting issues detected:"
+    echo "$fmt_output"
+    exit 1
+fi
+
+vet_output=$(go vet ./...)
+if [ $? -ne 0 ]; then
+    echo "Static analysis issues detected:"
+    echo "$vet_output"
+    exit 1
+fi
+
+test_output=$(go test ./...)
+if [ $? -ne 0 ]; then
+    echo "Tests failed:"
+    echo "$test_output"
+    exit 1
+fi
+
+echo "All checks passed!"

@@ -29,3 +29,11 @@ This SSG converts Markdown content into static HTML files, making it perfect for
     git clone https://github.com/codinginteams/simple-go-ssg.git
     cd simple-go-ssg
     ```
+
+### Setting Up Pre-Commit Hooks
+
+Run the following command after cloning the repository:
+
+```bash
+bash scripts/setup-hooks.sh
+```
