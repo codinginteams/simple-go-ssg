@@ -97,13 +97,18 @@ func prepareTemplateData(file, contentHTML string) map[string]string {
 }
 
 func renderTemplateToFile(outputFile string, tmpl *template.Template, data map[string]string) error {
+	dataWithSafeHTML := map[string]interface{}{
+		"Title":   data["Title"],
+		"Content": template.HTML(data["Content"]),
+	}
+
 	output, err := os.Create(outputFile)
 	if err != nil {
 		return err
 	}
 	defer output.Close()
 
-	return tmpl.Execute(output, data)
+	return tmpl.Execute(output, dataWithSafeHTML)
 }
 
 func logGeneration(outputFile string) {
