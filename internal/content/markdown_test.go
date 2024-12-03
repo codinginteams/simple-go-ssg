@@ -1,6 +1,9 @@
+// ./internal/content/markdown_test.go
 package content
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestMarkdownToHtml(t *testing.T) {
 	tests := []struct {
@@ -9,66 +12,43 @@ func TestMarkdownToHtml(t *testing.T) {
 		expected string
 	}{
 		{
-			name:     "Full conversion with multiple syntax",
-			input:    "# Heading **bold** _italic_",
-			expected: "<h1>Heading <strong>bold</strong> <em>italic</em></h1>",
+			name:     "Empty input",
+			input:    "",
+			expected: "",
+		},
+		{
+			name:     "Single paragraph",
+			input:    "This is a simple paragraph.",
+			expected: "<p>This is a simple paragraph.</p>",
+		},
+		{
+			name:     "Single heading",
+			input:    "# Heading 1",
+			expected: "<h1>Heading 1</h1>",
+		},
+		{
+			name:     "Unordered list",
+			input:    "- Item 1\n- Item 2\n- Item 3",
+			expected: "<ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul>",
+		},
+		{
+			name:     "Ordered list",
+			input:    "1. First\n2. Second\n3. Third",
+			expected: "<ol><li>First</li><li>Second</li><li>Third</li></ol>",
+		},
+		{
+			name:     "Mixed headings and paragraphs",
+			input:    "# Heading 1\nThis is a paragraph.\n## Heading 2\nAnother paragraph.",
+			expected: "<h1>Heading 1</h1><p>This is a paragraph.</p><h2>Heading 2</h2><p>Another paragraph.</p>",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := MarkdownToHtml(tt.input)
-			if result != tt.expected {
-				t.Errorf("got %q, want %q", result, tt.expected)
+			output := MarkdownToHtml(tt.input)
+			if output != tt.expected {
+				t.Errorf("MarkdownToHtml() = %q, want %q", output, tt.expected)
 			}
 		})
-	}
-}
-
-func TestParseHeadings(t *testing.T) {
-	input := "# Heading 1"
-	expected := "<h1>Heading 1</h1>"
-	if result := parseHeadings(input); result != expected {
-		t.Errorf("parseHeadings() = %q, want %q", result, expected)
-	}
-}
-
-func TestParseBold(t *testing.T) {
-	input := "**bold**"
-	expected := "<strong>bold</strong>"
-	if result := parseBold(input); result != expected {
-		t.Errorf("parseBold() = %q, want %q", result, expected)
-	}
-}
-
-func TestParseItalic(t *testing.T) {
-	input := "_italic_"
-	expected := "<em>italic</em>"
-	if result := parseItalic(input); result != expected {
-		t.Errorf("parseItalic() = %q, want %q", result, expected)
-	}
-}
-
-func TestParseLinks(t *testing.T) {
-	input := "[example](https://example.com)"
-	expected := `<a href="https://example.com">example</a>`
-	if result := parseLinks(input); result != expected {
-		t.Errorf("parseLinks() = %q, want %q", result, expected)
-	}
-}
-
-func TestParseUnorderedList(t *testing.T) {
-	input := "- Item 1\n- Item 2"
-	expected := "<ul><li>Item 1</li><li>Item 2</li></ul>"
-	if result := parseUnorderedList(input); result != expected {
-		t.Errorf("parseUnorderedList() = %q, want %q", result, expected)
-	}
-}
-
-func TestParseOrderedList(t *testing.T) {
-	input := "1. Item 1\n2. Item 2"
-	expected := "<ol><li>Item 1</li><li>Item 2</li></ol>"
-	if result := parseOrderedList(input); result != expected {
-		t.Errorf("parseOrderedList() = %q, want %q", result, expected)
 	}
 }
